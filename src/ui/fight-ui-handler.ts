@@ -9,7 +9,7 @@ import { CommandPhase } from "../phases";
 import { MoveCategory } from "#app/data/move.js";
 import i18next from "i18next";
 import {Button} from "#enums/buttons";
-import Pokemon, { PokemonMove } from "#app/field/pokemon.js";
+import Pokemon, { EnemyPokemon, PokemonMove } from "#app/field/pokemon.js";
 
 export default class FightUiHandler extends UiHandler {
   private movesContainer: Phaser.GameObjects.Container;
@@ -21,6 +21,10 @@ export default class FightUiHandler extends UiHandler {
   private powerText: Phaser.GameObjects.Text;
   private accuracyLabel: Phaser.GameObjects.Text;
   private accuracyText: Phaser.GameObjects.Text;
+  private attackTypeEffectivenessLabel: Phaser.GameObjects.Text;
+  private attackTypeEffectivenessText: Phaser.GameObjects.Text;
+  private attackTypeEffectivenessLabel2: Phaser.GameObjects.Text;
+  private attackTypeEffectivenessText2: Phaser.GameObjects.Text;
   private cursorObj: Phaser.GameObjects.Image;
   private moveCategoryIcon: Phaser.GameObjects.Sprite;
 
@@ -42,46 +46,68 @@ export default class FightUiHandler extends UiHandler {
     this.moveInfoContainer.setName("move-info");
     ui.add(this.moveInfoContainer);
 
-    this.typeIcon = this.scene.add.sprite(this.scene.scaledCanvas.width - 57, -36,`types${Utils.verifyLang(i18next.resolvedLanguage) ? `_${i18next.resolvedLanguage}` : ""}` , "unknown");
+    this.typeIcon = this.scene.add.sprite(this.scene.scaledCanvas.width - 57, -52,`types${Utils.verifyLang(i18next.resolvedLanguage) ? `_${i18next.resolvedLanguage}` : ""}` , "unknown");
     this.typeIcon.setVisible(false);
     this.moveInfoContainer.add(this.typeIcon);
 
-    this.moveCategoryIcon = this.scene.add.sprite(this.scene.scaledCanvas.width - 25, -36, "categories", "physical");
+    this.moveCategoryIcon = this.scene.add.sprite(this.scene.scaledCanvas.width - 25, -52, "categories", "physical");
     this.moveCategoryIcon.setVisible(false);
     this.moveInfoContainer.add(this.moveCategoryIcon);
 
-    this.ppLabel = addTextObject(this.scene, this.scene.scaledCanvas.width - 70, -26, "PP", TextStyle.MOVE_INFO_CONTENT);
+    this.ppLabel = addTextObject(this.scene, this.scene.scaledCanvas.width - 70, -42, "PP", TextStyle.MOVE_INFO_CONTENT);
     this.ppLabel.setOrigin(0.0, 0.5);
     this.ppLabel.setVisible(false);
     this.ppLabel.setText(i18next.t("fightUiHandler:pp"));
     this.moveInfoContainer.add(this.ppLabel);
 
-    this.ppText = addTextObject(this.scene, this.scene.scaledCanvas.width - 12, -26, "--/--", TextStyle.MOVE_INFO_CONTENT);
+    this.ppText = addTextObject(this.scene, this.scene.scaledCanvas.width - 12, -42, "--/--", TextStyle.MOVE_INFO_CONTENT);
     this.ppText.setOrigin(1, 0.5);
     this.ppText.setVisible(false);
     this.moveInfoContainer.add(this.ppText);
 
-    this.powerLabel = addTextObject(this.scene, this.scene.scaledCanvas.width - 70, -18, "POWER", TextStyle.MOVE_INFO_CONTENT);
+    this.powerLabel = addTextObject(this.scene, this.scene.scaledCanvas.width - 70, -34, "POWER", TextStyle.MOVE_INFO_CONTENT);
     this.powerLabel.setOrigin(0.0, 0.5);
     this.powerLabel.setVisible(false);
     this.powerLabel.setText(i18next.t("fightUiHandler:power"));
     this.moveInfoContainer.add(this.powerLabel);
 
-    this.powerText = addTextObject(this.scene, this.scene.scaledCanvas.width - 12, -18, "---", TextStyle.MOVE_INFO_CONTENT);
+    this.powerText = addTextObject(this.scene, this.scene.scaledCanvas.width - 12, -34, "---", TextStyle.MOVE_INFO_CONTENT);
     this.powerText.setOrigin(1, 0.5);
     this.powerText.setVisible(false);
     this.moveInfoContainer.add(this.powerText);
 
-    this.accuracyLabel = addTextObject(this.scene, this.scene.scaledCanvas.width - 70, -10, "ACC", TextStyle.MOVE_INFO_CONTENT);
+    this.accuracyLabel = addTextObject(this.scene, this.scene.scaledCanvas.width - 70, -26, "ACC", TextStyle.MOVE_INFO_CONTENT);
     this.accuracyLabel.setOrigin(0.0, 0.5);
     this.accuracyLabel.setVisible(false);
     this.accuracyLabel.setText(i18next.t("fightUiHandler:accuracy"));
     this.moveInfoContainer.add(this.accuracyLabel);
 
-    this.accuracyText = addTextObject(this.scene, this.scene.scaledCanvas.width - 12, -10, "---", TextStyle.MOVE_INFO_CONTENT);
+    this.accuracyText = addTextObject(this.scene, this.scene.scaledCanvas.width - 12, -26, "---", TextStyle.MOVE_INFO_CONTENT);
     this.accuracyText.setOrigin(1, 0.5);
     this.accuracyText.setVisible(false);
     this.moveInfoContainer.add(this.accuracyText);
+
+    this.attackTypeEffectivenessLabel = addTextObject(this.scene, this.scene.scaledCanvas.width - 70, -18, "MULTIPLIER", TextStyle.MOVE_INFO_CONTENT);
+    this.attackTypeEffectivenessLabel.setOrigin(0.0, 0.5);
+    this.attackTypeEffectivenessLabel.setVisible(false);
+    this.attackTypeEffectivenessLabel.setText("가중치");
+    this.moveInfoContainer.add(this.attackTypeEffectivenessLabel);
+
+    this.attackTypeEffectivenessText = addTextObject(this.scene, this.scene.scaledCanvas.width - 12, -18, "---", TextStyle.MOVE_INFO_CONTENT);
+    this.attackTypeEffectivenessText.setOrigin(1, 0.5);
+    this.attackTypeEffectivenessText.setVisible(false);
+    this.moveInfoContainer.add(this.attackTypeEffectivenessText);
+
+    this.attackTypeEffectivenessLabel2 = addTextObject(this.scene, this.scene.scaledCanvas.width - 70, -10, "MULTIPLIER", TextStyle.MOVE_INFO_CONTENT);
+    this.attackTypeEffectivenessLabel2.setOrigin(0.0, 0.5);
+    this.attackTypeEffectivenessLabel2.setVisible(false);
+    this.attackTypeEffectivenessLabel2.setText("가중치(우)");
+    this.moveInfoContainer.add(this.attackTypeEffectivenessLabel2);
+
+    this.attackTypeEffectivenessText2 = addTextObject(this.scene, this.scene.scaledCanvas.width - 12, -10, "---", TextStyle.MOVE_INFO_CONTENT);
+    this.attackTypeEffectivenessText2.setOrigin(1, 0.5);
+    this.attackTypeEffectivenessText2.setVisible(false);
+    this.moveInfoContainer.add(this.attackTypeEffectivenessText2);
   }
 
   show(args: any[]): boolean {
@@ -208,6 +234,17 @@ export default class FightUiHandler extends UiHandler {
       pokemon.getOpponents().forEach((opponent) => {
         opponent.updateEffectiveness(this.getEffectivenessText(pokemon, opponent, pokemonMove));
       });
+
+      const enemy: EnemyPokemon | undefined = this.scene.getEnemyParty()[0];
+      const enemy2: EnemyPokemon | undefined = this.scene.getEnemyParty()[1];
+      if (enemy) {
+        const attackTypeEffectiveness = enemy.getAttackTypeEffectiveness(pokemonMove.getMove().type, pokemon);
+        this.attackTypeEffectivenessText.setText(String(attackTypeEffectiveness));
+      }
+      if (enemy2) {
+        const attackTypeEffectiveness = enemy2.getAttackTypeEffectiveness(pokemonMove.getMove().type, pokemon);
+        this.attackTypeEffectivenessText2.setText(String(attackTypeEffectiveness));
+      }
     }
 
     this.typeIcon.setVisible(hasMove);
@@ -218,6 +255,10 @@ export default class FightUiHandler extends UiHandler {
     this.accuracyLabel.setVisible(hasMove);
     this.accuracyText.setVisible(hasMove);
     this.moveCategoryIcon.setVisible(hasMove);
+    this.attackTypeEffectivenessLabel.setVisible(hasMove);
+    this.attackTypeEffectivenessText.setVisible(hasMove);
+    this.attackTypeEffectivenessLabel2.setVisible(hasMove);
+    this.attackTypeEffectivenessText2.setVisible(hasMove);
 
     this.cursorObj.setPosition(13 + (cursor % 2 === 1 ? 100 : 0), -31 + (cursor >= 2 ? 15 : 0));
 
@@ -292,6 +333,10 @@ export default class FightUiHandler extends UiHandler {
     this.accuracyLabel.setVisible(false);
     this.accuracyText.setVisible(false);
     this.moveCategoryIcon.setVisible(false);
+    this.attackTypeEffectivenessLabel.setVisible(false);
+    this.attackTypeEffectivenessText.setVisible(false);
+    this.attackTypeEffectivenessLabel2.setVisible(false);
+    this.attackTypeEffectivenessText2.setVisible(false);
     messageHandler.bg.setVisible(true);
     this.eraseCursor();
   }

@@ -50,7 +50,7 @@ export default class BattleMessageUiHandler extends MessageUiHandler {
     movesWindow.setName("moves-window");
     movesWindow.setOrigin(0, 1);
 
-    const moveDetailsWindow = addWindow(this.scene, 240, 0, 80, 48, false, false, -1, 132);
+    const moveDetailsWindow = addWindow(this.scene, 240, 0, 80, 64, false, false, -1, 116);
     moveDetailsWindow.setName("move-details-window");
     moveDetailsWindow.setOrigin(0, 1);
 
