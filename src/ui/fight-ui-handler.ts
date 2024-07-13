@@ -235,8 +235,8 @@ export default class FightUiHandler extends UiHandler {
         opponent.updateEffectiveness(this.getEffectivenessText(pokemon, opponent, pokemonMove));
       });
 
-      const enemy: EnemyPokemon | undefined = this.scene.getEnemyParty()[0];
-      const enemy2: EnemyPokemon | undefined = this.scene.getEnemyParty()[1];
+      const enemy: EnemyPokemon | undefined = this.scene.getEnemyField()[0];
+      const enemy2: EnemyPokemon | undefined = this.scene.getEnemyField()[1];
       if (enemy) {
         const attackTypeEffectiveness = enemy.getAttackTypeEffectiveness(pokemonMove.getMove().type, pokemon);
         this.attackTypeEffectivenessText.setText(String(attackTypeEffectiveness));
