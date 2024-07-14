@@ -1085,7 +1085,16 @@ class PartySlot extends Phaser.GameObjects.Container {
     slotLevelText.setPositionRelative(slotLevelLabel, 9, 0);
     slotLevelText.setOrigin(0, 0.25);
 
-    slotInfoContainer.add([ slotName, slotLevelLabel, slotLevelText ]);
+    const enemyField = (this.scene as BattleScene).getEnemyField();
+    const maxA = Math.max(...enemyField.map(enemy => (this.scene as BattleScene)?.getMaxAttackTypeEffectiveness(this.pokemon, enemy)));
+    const maxD = Math.max(...enemyField.map(enemy => (this.scene as BattleScene)?.getMaxAttackTypeEffectiveness(enemy, this.pokemon)));
+    const slotTypeEffectivenessText = addTextObject(
+      this.scene, 0, 0, `A${Utils.roundToFirstDecimalPlace (maxA)} D${Utils.roundToFirstDecimalPlace(maxD)}`, TextStyle.PARTY
+    );
+    slotTypeEffectivenessText.setPositionRelative(slotLevelLabel, this.slotIndex >= battlerCount ? 65 : -20, this.slotIndex >= battlerCount ? -3 : 14);
+    slotTypeEffectivenessText.setOrigin(0, 0);
+
+    slotInfoContainer.add([ slotName, slotLevelLabel, slotLevelText, slotTypeEffectivenessText ]);
 
     const genderSymbol = getGenderSymbol(this.pokemon.getGender(true));
 

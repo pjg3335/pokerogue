@@ -527,4 +527,6 @@ export function reverseValueToKeySetting(input) {
   return capitalizedWords.join("_");
 }
 
-
+export function roundToFirstDecimalPlace(num: number) {
+  return String(Number.isInteger(num) ? num : Math.round(num * 10) / 10);
+}

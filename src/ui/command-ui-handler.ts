@@ -17,12 +17,15 @@ export enum Command {
 export default class CommandUiHandler extends UiHandler {
   private commandsContainer: Phaser.GameObjects.Container;
   private cursorObj: Phaser.GameObjects.Image;
+  private commandTexts: Phaser.GameObjects.Text[];
 
   protected fieldIndex: integer = 0;
   protected cursor2: integer = 0;
 
   constructor(scene: BattleScene) {
     super(scene, Mode.COMMAND);
+
+    this.commandTexts = [];
   }
 
   setup() {
@@ -42,12 +45,16 @@ export default class CommandUiHandler extends UiHandler {
     for (let c = 0; c < commands.length; c++) {
       const commandText = addTextObject(this.scene, c % 2 === 0 ? 0 : 55.8, c < 2 ? 0 : 16, commands[c], TextStyle.WINDOW);
       commandText.setName(commands[c]);
+      this.commandTexts.push(commandText);
       this.commandsContainer.add(commandText);
     }
   }
 
   show(args: any[]): boolean {
     super.show(args);
+
+    const switchBenefit = this.scene.checkSwitchBenefit();
+    this.commandTexts[2].setText(i18next.t("commandUiHandler:pokemon") + (switchBenefit ? "*" : ""));
 
     this.fieldIndex = args.length ? args[0] as integer : 0;
 

@@ -13,7 +13,7 @@ import { initGameSpeed } from "./system/game-speed";
 import { Arena, ArenaBase } from "./field/arena";
 import { GameData } from "./system/game-data";
 import { TextStyle, addTextObject, getTextColor } from "./ui/text";
-import { allMoves } from "./data/move";
+import { allMoves, MoveCategory } from "./data/move";
 import { ModifierPoolType, getDefaultModifierTypeForTier, getEnemyModifierTypesForWave, getLuckString, getLuckTextTint, getModifierPoolForType, getPartyLuckValue } from "./modifier/modifier-type";
 import AbilityBar from "./ui/ability-bar";
 import { BlockItemTheftAbAttr, DoubleBattleChanceAbAttr, IncrementMovePriorityAbAttr, PostBattleInitAbAttr, applyAbAttrs, applyPostBattleInitAbAttrs } from "./data/ability";
@@ -2541,5 +2541,67 @@ export default class BattleScene extends SceneBase {
       }) : []
     };
     (window as any).gameInfo = gameInfo;
+  }
+
+  checkSwitchBenefit() {
+    const nowBenefit = Math.max(...this.getNowMaxAttackTypeEffectiveness().map((
+      { attackMaxEffectiveness, defenseMaxEffectiveness }) => attackMaxEffectiveness / defenseMaxEffectiveness,
+    ));
+    const benefit = Math.max(...this.getAllMaxAttackTypeEffectiveness().map((
+      { attackMaxEffectiveness, defenseMaxEffectiveness }) => attackMaxEffectiveness / defenseMaxEffectiveness,
+    ));
+    return nowBenefit < benefit;
+  }
+
+  private getAllMaxAttackTypeEffectiveness() {
+    const enemyField = this.getEnemyField();
+    const party = this.getParty();
+
+    return party.map(
+      playerPokemon => ({
+        attackMaxEffectiveness: Math.max(
+          ...enemyField.map(enemyPokemon => this.getMaxAttackTypeEffectiveness(playerPokemon, enemyPokemon)
+          )),
+        defenseMaxEffectiveness: Math.max(
+          ...enemyField.map(enemyPokemon => this.getMaxAttackTypeEffectiveness(enemyPokemon, playerPokemon)
+          ))
+      })
+    );
+  }
+
+  private getNowMaxAttackTypeEffectiveness() {
+    const enemyField = this.getEnemyField();
+    const playerField = this.getPlayerField();
+
+    return playerField.map(
+      playerPokemon => ({
+        attackMaxEffectiveness: Math.max(
+          ...enemyField.map(enemyPokemon => this.getMaxAttackTypeEffectiveness(playerPokemon, enemyPokemon)
+          )),
+        defenseMaxEffectiveness: Math.max(
+          ...enemyField.map(enemyPokemon => this.getMaxAttackTypeEffectiveness(enemyPokemon, playerPokemon)
+          ))
+      })
+    );
+  }
+
+  getMaxAttackTypeEffectiveness(attackingPokemon: Pokemon , defendingPokemon: Pokemon) {
+    try {
+      return Math.max(
+        ...attackingPokemon
+          .getMoveset()
+          .filter(moveset => moveset.getMove().category !== MoveCategory.STATUS)
+          .map(moveset => moveset.getMove().type)
+          .map(type => defendingPokemon.getAttackTypeEffectiveness(type, attackingPokemon))
+      );
+    } catch (e) {
+      return Math.max(
+        ...attackingPokemon
+          .getMoveset()
+          .filter(moveset => moveset.getMove().category !== MoveCategory.STATUS)
+          .map(moveset => moveset.getMove().type)
+          .map(type => defendingPokemon.getAttackTypeEffectiveness(type, attackingPokemon, true))
+      );
+    }
   }
 }

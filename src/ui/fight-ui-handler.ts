@@ -244,6 +244,8 @@ export default class FightUiHandler extends UiHandler {
       if (enemy2) {
         const attackTypeEffectiveness = enemy2.getAttackTypeEffectiveness(pokemonMove.getMove().type, pokemon);
         this.attackTypeEffectivenessText2.setText(String(attackTypeEffectiveness));
+      } else {
+        this.attackTypeEffectivenessText2.setText("---");
       }
     }
 
